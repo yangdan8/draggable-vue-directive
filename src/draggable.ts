@@ -1,4 +1,5 @@
-import Vue, { DirectiveOptions, VNodeDirective, VNode } from "vue";
+import Vue, { DirectiveOptions, VNode } from "vue";
+import { DirectiveBinding } from 'vue/types/options';
 
 export type HandleType = Vue | HTMLElement;
 export interface Position {
@@ -31,7 +32,7 @@ export interface DraggableValue {
 	initialPosition?: Position;
 }
 
-export interface DraggableBindings extends VNodeDirective {
+export interface DraggableBindings extends DirectiveBinding {
 	value: DraggableValue;
 }
 
@@ -49,7 +50,7 @@ enum ChangePositionType {
 }
 
 function extractHandle(handle: HandleType): HTMLElement {
-	return handle && (handle as Vue).$el || handle as HTMLElement;
+	return handle && ((handle as Vue).$el || handle) as HTMLElement;
 }
 
 function getPosWithBoundaries(elementRect: ClientRect, boundingRect: ClientRect, left: number, top: number, boundingRectMargin: MarginOptions = {}): Position {
@@ -83,15 +84,17 @@ function getPosWithBoundaries(elementRect: ClientRect, boundingRect: ClientRect,
 }
 
 export const Draggable: DirectiveOptions = {
-	bind(el: HTMLElement, binding: DraggableBindings, vnode: VNode, oldVnode: VNode) {
-		Draggable.update(el, binding, vnode, oldVnode);
+	bind(el: HTMLElement, binding: DirectiveBinding, vnode: VNode, oldVnode: VNode) {
+		const binding2=  binding as DraggableBindings;
+		Draggable.update!(el, binding2, vnode, oldVnode);
 	},
-	update(el: HTMLElement, binding: DraggableBindings, vnode: VNode, oldVnode: VNode) {
-		if (binding.value && binding.value.stopDragging) {
+	update(el: HTMLElement, binding: DirectiveBinding, vnode: VNode, oldVnode: VNode) {
+		const binding2=  binding as DraggableBindings;
+		if (binding2.value && binding2.value.stopDragging) {
 			return;
 		}
-		const handler = (binding.value && binding.value.handle && extractHandle(binding.value.handle)) || el;
-		if (binding && binding.value && binding.value.resetInitialPos) {
+		const handler = (binding2.value && binding2.value.handle && extractHandle(binding2.value.handle)) || el;
+		if (binding2 && binding2.value && binding2.value.resetInitialPos) {
 			initializeState();
 			handlePositionChanged();
 		}
@@ -107,7 +110,7 @@ export const Draggable: DirectiveOptions = {
 		function mouseMove(event: MouseEvent) {
 			event.preventDefault();
 
-			const stopDragging = binding.value && binding.value.stopDragging;
+			const stopDragging = binding2.value && binding2.value.stopDragging;
 			if (stopDragging) {
 				return;
 			}
@@ -118,8 +121,8 @@ export const Draggable: DirectiveOptions = {
 				state = getState();
 			}
 
-			let dx = event.clientX - state.initialMousePos.left;
-			let dy = event.clientY - state.initialMousePos.top;
+			let dx = event.clientX - state.initialMousePos!.left;
+			let dy = event.clientY - state.initialMousePos!.top;
 
 			let currentDragPosition = {
 				left: state.startDragPosition.left + dx,
@@ -135,7 +138,7 @@ export const Draggable: DirectiveOptions = {
 					boundingRect,
 					currentDragPosition.left,
 					currentDragPosition.top,
-					binding.value.boundingRectMargin
+					binding2.value.boundingRectMargin
 				);
 			}
 
@@ -145,13 +148,13 @@ export const Draggable: DirectiveOptions = {
 		}
 
 		function getBoundingRect(): ClientRect | undefined {
-			if (!binding.value) {
+			if (!binding2.value) {
 				return;
 			}
 
-			return binding.value.boundingRect
-				|| binding.value.boundingElement
-				&& binding.value.boundingElement.getBoundingClientRect();
+			return binding2.value.boundingRect
+				|| binding2.value.boundingElement
+				&& binding2.value.boundingElement.getBoundingClientRect();
 		}
 
 		function updateElementStyle(): void {
@@ -204,7 +207,7 @@ export const Draggable: DirectiveOptions = {
 
 		function initializeState(event?: MouseEvent): void {
 			const state = getState();
-			const initialRectPositionFromBinding = binding && binding.value && binding.value.initialPosition;
+			const initialRectPositionFromBinding = binding2 && binding2.value && binding2.value.initialPosition;
 			const initialRectPositionFromState = state.initialPosition;
 			const startingDragPosition = getRectPosition();
 			const initialPosition = initialRectPositionFromBinding || initialRectPositionFromState || startingDragPosition;
@@ -238,13 +241,13 @@ export const Draggable: DirectiveOptions = {
 			const currentPosition = state.currentDragPosition && { ...state.currentDragPosition };
 
 			if (changePositionType === ChangePositionType.End) {
-				binding.value && binding.value.onDragEnd && state && binding.value.onDragEnd(posDiff, currentPosition, event);
+				binding2.value && binding2.value.onDragEnd && state && binding2.value.onDragEnd(posDiff, currentPosition, event);
 			}
 			else if (changePositionType === ChangePositionType.Start) {
-				binding.value && binding.value.onDragStart && state && binding.value.onDragStart(posDiff, currentPosition, event);
+				binding2.value && binding2.value.onDragStart && state && binding2.value.onDragStart(posDiff, currentPosition, event);
 			}
 			else {
-				binding.value && binding.value.onPositionChange && state && binding.value.onPositionChange(posDiff, currentPosition, event);
+				binding2.value && binding2.value.onPositionChange && state && binding2.value.onPositionChange(posDiff, currentPosition, event);
 			}
 		}
 
