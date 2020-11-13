@@ -205,4 +205,4 @@
     Object.defineProperty(exports, '__esModule', { value: true });
 
 })));
-//# sourceMappingURL=index.js.map
+//# sourceMappingURL=draggable-vue-directive.umd.js.map

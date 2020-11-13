@@ -37,4 +37,3 @@ export interface DraggableState {
     initialMousePos?: Position;
 }
 export declare const Draggable: DirectiveOptions;
-//# sourceMappingURL=draggable.d.ts.map
