@@ -7,7 +7,7 @@ import { terser } from 'rollup-plugin-terser';
 const packages = require('./package.json');
 
 export default [
-    // .umd.js
+  // .umd.js
   {
     input: 'src/index.ts',
     output: [
